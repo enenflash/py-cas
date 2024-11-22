@@ -132,46 +132,5 @@ class Func:
     # CONVERSIONS
     def __repr__ (self) -> str:
         return str(self.exp)
-
-class Differentiate(Func):
-    def __init__ (self, exp:Sum|Product|LargePower, var:str):
-        super().__init__(exp, [var])
-
-    def diff_Sum(self, exp:Sum, var:str) -> Sum:
-        if type(exp) != Sum:
-            raise TypeError("expected type Sum for exp")
-        
-        new_term_list = []
-        for term in exp.term_list:
-            if type(term) in (int, float, Rational, Power, ConstProduct):
-                continue
-
-            if type(term) == Term:
-                if var not in term.var_powers:
-                    continue
-                
-                new_var_powers = term.var_powers.copy()
-                new_var_powers[var] -= 1
-                new_term_list.append(Term(term.coefficient*term.var_powers[var], new_var_powers))
-
-            if type(term) == Product:
-                self.diff_Product(term, var)
-
-            if type(term) == LargePower:
-                self.diff_largebase(term, var)
-
-        return Sum(new_term_list).simplify()
-
-    def diff_Product(self, exp:Product, var:str) -> Product:
-        return self.diff_Sum(exp.expand(), var)
-    
-    def diff_largebase(self, exp:LargePower, var:str) -> LargePower:
-        return self
-
-    def evaluate(self):
-        if type(self.exp) == Sum:
-            self.diff_Sum(self.exp)
-
-        return self.exp
     
 numeric = (int, float, Rational, Power, ConstProduct, Term, Sum, Product, LargePower, Func)
